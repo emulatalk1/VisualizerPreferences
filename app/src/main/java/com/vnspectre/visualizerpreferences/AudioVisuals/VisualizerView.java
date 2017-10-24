@@ -83,7 +83,7 @@ public class VisualizerView extends View {
             }
         };
 
-        // Make midrange square
+        // Make mid-range square
         mMidSquare = new TrailedShape(MID_MULTIPLIER) {
             @Override
             protected void drawThisShape(float shapeCenterX, float shapeCenterY, float currentSize, Canvas canvas, Paint paint) {
