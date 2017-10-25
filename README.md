@@ -3,3 +3,5 @@ This is just custom component for responsible for setting up and drawing the vis
 ### PreferenceFragment:
 - [x] CheckBoxPreference (Show shape).
 - [x] ListPreference (Choose color).
+- [x] EditTextPreference (Change size shape).
+Use OnSharedPreferenceChangeListener and OnPreferenceChangeListener.
