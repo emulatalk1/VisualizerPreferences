@@ -8,6 +8,7 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+import android.widget.Toast;
 
 import static android.content.SharedPreferences.*;
 
@@ -16,7 +17,7 @@ import static android.content.SharedPreferences.*;
  * Created by Spectre on 10/24/17.
  */
 
-public class SettingsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener{
+public class SettingsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener{
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pref_visualizer);
@@ -26,7 +27,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
         int count = prefScreen.getPreferenceCount();
 
         for (int i = 0; i < count; i++) {
-            Preference p =prefScreen.getPreference(i);
+            Preference p = prefScreen.getPreference(i);
 
             // We don't need to set up preference summaries for checkbox preferences because
             // they are already set up in xml using summaryOff and summary On
@@ -35,6 +36,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
                 setPreferenceSummary(p, value);
             }
         }
+
+        // Add the preference listener which checks that the size is correct to the size preference.
+        Preference preference = findPreference(getString(R.string.pref_size_key));
+        preference.setOnPreferenceChangeListener(this);
     }
 
     // call setPreferenceSummary on the changed preference
@@ -49,6 +54,37 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
                 setPreferenceSummary(preference, value);
             }
         }
+    }
+
+    /* This method should try to convert the new preference value
+       to a float; if it cannot, show a helpful error message and return false. If it can be converted
+       to a float check that that float is between 0 (exclusive) and 3 (inclusive). If it isn't, show
+       an error message and return false. If it is a valid number, return true.
+    */
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+        // In this context, we're using the onPreferenceChange listener for checking whether the
+        // size setting was set to a valid value.
+        Toast error = Toast.makeText(getContext(), "Please select a number between 0.1 and 3", Toast.LENGTH_SHORT);
+
+        // Double check that the preference is the size preference.
+        String sizeKey = getString(R.string.pref_size_key);
+        if (preference.getKey().equals(sizeKey)) {
+            String stringSize = ((String) (newValue)).trim();
+            if (stringSize.equals("")) stringSize = "1";
+            try {
+                float size = Float.parseFloat(stringSize);
+                if (size > 3 || size <= 0) {
+                    error.show();
+                    return false;
+                }
+            } catch (NumberFormatException nfe) {
+                error.show();
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -85,4 +121,5 @@ public class SettingsFragment extends PreferenceFragmentCompat implements OnShar
         super.onDestroy();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
+
 }
